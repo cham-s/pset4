@@ -333,8 +333,8 @@ void endGameMessage(GWindow window, char* message)
 {
     GLabel messageboard = newGLabel(message);
     
-    double x = getWidth(window) - getWidth(messageboard) / 2;
-    double y = getHeight(window) - getHeight(messageboard) / 2;
+    double x = (getWidth(window) / 2) - getWidth(messageboard) - 20;
+    double y = getHeight(window) / 2 + 50;
     
     setColor(messageboard, "RED");
     setFont(messageboard, "SansSerif-36");
