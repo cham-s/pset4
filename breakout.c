@@ -42,6 +42,7 @@ GRect initPaddle(GWindow window);
 GLabel initScoreboard(GWindow window);
 void updateScoreboard(GWindow window, GLabel label, int points);
 GObject detectCollision(GWindow window, GOval ball);
+void endGameMessage (GWindow window, char* message);
 
 int main(void)
 {
@@ -72,20 +73,20 @@ int main(void)
     // number of points initially
     int points = 0;
     
-    // velocity of the ball
-    double velocity_x = .5/*(drand48() * SPEED) - SPEED / 2 - SPEED*/;
-    double velocity_y = -.5;
+    // velocity of the ball translating the speed of the bal
+    double velocity_x = -2; //*(drand48() * SPEED) - SPEED / 2 - SPEED*/
+    double velocity_y =  2;
+    
+    /* Bonus feature how many shot you ended the game
+    int it = 0; */
     
     // keep playing until game over until no lives or bricks left
     while (lives > 0 && bricks > 0)
     {
-        //detect collision of the ball
-        GObject object = detectCollision(window, ball);
-    
-        //check for mouse event
+        // check for mouse event
         GEvent event = getNextEvent(MOUSE_EVENT);
         
-        //if we heard one
+        // if we heard one
         if(event != NULL)
         {
             // if the event is mouvement
@@ -98,7 +99,6 @@ int main(void)
                 // keep the paddle from leaving the frame of the window
                 if (x + getWidth(paddle) >= getWidth(window) )
                 {
-                    
                     x = getWidth(window) - getWidth(paddle);
                 }else if (x < 0)
                 {
@@ -119,7 +119,7 @@ int main(void)
         }
         
         // make the ball bounce from the right side
-        if (getX(ball) + getWidth(ball) >= getWidth(window))
+        else if (getX(ball) + getWidth(ball) >= getWidth(window))
         {
             velocity_x = -velocity_x;
         }
@@ -131,7 +131,7 @@ int main(void)
         }
         
         // if it touches the bottom 
-        if (getY(ball) + getHeight(ball) >= getHeight(window))
+        else if (getY(ball) + getHeight(ball) >= getHeight(window))
         {
             double x = getWidth(window) / 2 - RADIUS;
             double y = getHeight(window) / 2 - RADIUS;
@@ -141,35 +141,65 @@ int main(void)
             setLocation(ball, x, y);
         }
         
+        // detect collision of the ball
+        GObject object = detectCollision(window, ball);
         
         if (object !=NULL)
         {
             // if the ball colides with the paddle or top of rect
             if (object == paddle)
             {
-            
-                velocity_y = -velocity_y;
-            
+                //printf("it touches it %i times\n", it);
+                if (getY(ball) + getHeight(ball) >= getY(paddle)) 
+                {
+                    velocity_y = -velocity_y;
+                    //it++;
+                    //object = detectCollision(window, ball);
+                }
             }
         
-           /* // if it touches the top of the window or the rect
-            else if(strcmp(getType(object), "GRect") == 0)
-            {
-                velocity_y = -velocity_y;
-            }*/
-        
-            //remove the brick
+            // remove the brick
             if (strcmp(getType(object), "GRect") == 0 && object != paddle)
             {
                 removeGWindow(window, object);
                 bricks--;
                 points++;
+                if (getY(ball) + getHeight(ball) >= getY(object)) 
+                {
+                    velocity_y = -velocity_y;
+                }
+                else if (getY(ball) >= getY(object) + getHeight(object)) 
+                {
+                    velocity_y = -velocity_y;
+                }
             }
         }
         
         pause(10);
         
         updateScoreboard(window, scoreboard, points);
+    }
+    char* s;
+    if (lives > 0) 
+    {
+        s = "Bravo You Won!";
+        if (s != NULL)
+        {
+            endGameMessage(window, s);
+        } else 
+        {
+            printf("NULL char");
+        }
+    } else 
+    {
+        s = "Game Over!";
+        if (s != NULL)
+        {
+            endGameMessage(window, s);
+        } else 
+        {
+            printf("NULL char");
+        }
     }
 
     // wait for click before exiting
@@ -248,8 +278,8 @@ GOval initBall(GWindow window)
     setColor(ball, "BLACK");
     
     // place in center of window
-    double x = RADIUS/*getWidth(window) / 2 - RADIUS*/;
-    double y = RADIUS/*getHeight(window) / 2 - RADIUS*/;
+    double x = getWidth(window) / 2 - RADIUS;
+    double y = getHeight(window) / 2 - RADIUS;
     setLocation(ball, x, y);
     add(window, ball);
     
@@ -262,7 +292,7 @@ GOval initBall(GWindow window)
 GRect initPaddle(GWindow window)
 {
     // instantiate a rectangle
-    GRect paddle = newGRect(0, 0, 70, 10);
+    GRect paddle = newGRect(0, 0, 70, 10); //getWidth(window)
     
     // give him swagg
     setColor(paddle, "RED");
@@ -294,6 +324,22 @@ GLabel initScoreboard(GWindow window)
     setLocation(scoreboard, x, y);
     
     return scoreboard;
+}
+
+/**
+* Show a message at the end of the game
+*/
+void endGameMessage(GWindow window, char* message) 
+{
+    GLabel messageboard = newGLabel(message);
+    
+    double x = getWidth(window) - getWidth(messageboard) / 2;
+    double y = getHeight(window) - getHeight(messageboard) / 2;
+    
+    setColor(messageboard, "RED");
+    setFont(messageboard, "SansSerif-36");
+    add(window, messageboard);
+    setLocation(messageboard, x, y);
 }
 
 /**
