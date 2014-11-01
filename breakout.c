@@ -149,12 +149,10 @@ int main(void)
             // if the ball colides with the paddle or top of rect
             if (object == paddle)
             {
-                //printf("it touches it %i times\n", it);
                 if (getY(ball) + getHeight(ball) >= getY(paddle)) 
                 {
                     velocity_y = -velocity_y;
-                    //it++;
-                    //object = detectCollision(window, ball);
+                     
                 }
             }
         
